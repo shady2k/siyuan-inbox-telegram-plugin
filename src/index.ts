@@ -153,6 +153,7 @@ export default class PluginSample extends Plugin {
           getInboxMessages({
             botToken: this.settingUtils.get("botToken"),
             updateId: this.data[STORAGE_NAME].updateId,
+            authorizedUser: this.settingUtils.get("authorizedUser"),
           }).then((res) => {
             if (res?.updateId) {
               this.data[STORAGE_NAME].updateId = res.updateId;
@@ -264,9 +265,9 @@ export default class PluginSample extends Plugin {
       key: "authorizedUser",
       value: "",
       type: "textinput",
-      title: "Authorized user id from Telegram",
+      title: "Authorized username from Telegram",
       description:
-        "Be sure to add your username in authorizedUsers array, because your recently created bot is publicly findable and other peoples may send messages to your bot. If you leave this empty - all messages from all users will be processed!",
+        "Be sure to add your username here, because your recently created bot is publicly findable and other peoples may send messages to your bot. If you leave this empty - all messages from all users will be processed!",
       action: {
         // Called when focus is lost and content changes
         callback: () => {

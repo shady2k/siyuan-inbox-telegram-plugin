@@ -46,6 +46,8 @@ export async function getInboxMessages(opts: any): Promise<ITelegramResponse> {
     }),
   };
 
+  const authorizedUser = opts.authorizedUser || "";
+
   const proxyResponse = await forwardProxy(
     `https://api.telegram.org/bot${opts.botToken}/getUpdates`,
     "POST",
@@ -68,6 +70,14 @@ export async function getInboxMessages(opts: any): Promise<ITelegramResponse> {
           element.message.date &&
           element.message.from.username
         ) {
+          if(authorizedUser && authorizedUser.length > 0 && authorizedUser !== element.message.from.username) {
+            console.warn(
+              "Ignore messages, user not authorized",
+              element,
+            )
+            return
+          }
+
           const text = element.message.text;
           console.log({
             name: "Push in group messages",
