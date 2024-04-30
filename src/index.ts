@@ -214,6 +214,7 @@ export default class PluginSample extends Plugin {
       plugin: this,
       name: SETTINGS_STORAGE_NAME,
     });
+
     this.settingUtils.addItem({
       key: "botToken",
       value: "",
@@ -225,6 +226,51 @@ export default class PluginSample extends Plugin {
         // Called when focus is lost and content changes
         callback: () => {
           this.settingUtils.takeAndSave("botToken");
+        },
+      },
+    });
+
+    this.settingUtils.addItem({
+      key: "pollingInterval",
+      value: 60,
+      type: "number",
+      title: "Polling interval (seconds)",
+      description:
+        "This interval will be used to get new messages from Telegram bot",
+      action: {
+        // Called when focus is lost and content changes
+        callback: () => {
+          this.settingUtils.takeAndSave("pollingInterval");
+        },
+      },
+    });
+
+    this.settingUtils.addItem({
+      key: "inboxName",
+      value: "#inbox",
+      type: "textinput",
+      title: "Title in daily journal",
+      description:
+        "Messages will be pasted in daily journal into block with text, specified in inboxName property. Replace it in case of necessary. If you don't want to group messages, set inboxName property to null. In this case messages will be inserted directly into page block",
+      action: {
+        // Called when focus is lost and content changes
+        callback: () => {
+          this.settingUtils.takeAndSave("inboxName");
+        },
+      },
+    });
+
+    this.settingUtils.addItem({
+      key: "authorizedUser",
+      value: "",
+      type: "textinput",
+      title: "Authorized user id from Telegram",
+      description:
+        "Be sure to add your username in authorizedUsers array, because your recently created bot is publicly findable and other peoples may send messages to your bot. If you leave this empty - all messages from all users will be processed!",
+      action: {
+        // Called when focus is lost and content changes
+        callback: () => {
+          this.settingUtils.takeAndSave("authorizedUser");
         },
       },
     });
