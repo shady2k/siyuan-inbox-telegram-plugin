@@ -1,8 +1,8 @@
 {
-  "name": "plugin-sample-vite-svelte",
+  "name": "siyuan-inbox-telegram-plugin",
   "author": "frostime",
-  "url": "https://github.com/siyuan-note/plugin-sample-vite-svelte",
-  "version": "0.3.4",
+  "url": "https://github.com/shady2k/siyuan-inbox-telegram-plugin",
+  "version": "0.1.0",
   "minAppVersion": "3.0.0",
   "backends": [
     "windows",
