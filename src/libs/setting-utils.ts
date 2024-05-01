@@ -8,6 +8,7 @@
  */
 
 import { Plugin, Setting } from 'siyuan';
+import log from './logger';
 
 const valueOf = (ele: HTMLElement, parseNumber: Function=parseInt) => {
     let val: any = null;
@@ -94,7 +95,7 @@ export class SettingUtils {
 
     async load() {
         let data = await this.plugin.loadData(this.file);
-        console.debug('Load config:', data);
+        log.debug('Load config', data);
         if (data) {
             for (let [key, item] of this.settings) {
                 item.value = data?.[key] ?? item.value;
@@ -107,7 +108,7 @@ export class SettingUtils {
     async save() {
         let data = this.dump();
         await this.plugin.saveData(this.file, this.dump());
-        console.debug('Save config:', data);
+        log.debug('Save config:', data);
         return data;
     }
 
