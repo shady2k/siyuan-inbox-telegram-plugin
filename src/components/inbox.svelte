@@ -37,7 +37,7 @@
 <div class="fn__flex-1 fn__flex-column">
   <div class="block__icons">
     <div class="block__logo">
-      <svg class="block__logoicon"><use xlink:href="#iconInbox"></use></svg>
+      <svg class="block__logoicon"><use xlink:href="#iconTelegram"></use></svg>
       Telegram Inbox
     </div>
     <span class="fn__flex-1 fn__space"></span>

@@ -1,15 +1,16 @@
-import {
-  Plugin,
-  openTab,
-  getFrontend
-} from "siyuan";
+import { Plugin, openTab, getFrontend } from "siyuan";
 import "@/index.scss";
 import Inbox from "@/components/inbox.svelte";
 import { messagesStore, dumpStore } from "./libs/store";
 import { SettingUtils } from "./libs/setting-utils";
 import { getInboxMessages } from "./libs/telegram";
 import { createDailyNote, lsNotebooks, prependBlock } from "./api";
-import { SETTINGS_STORAGE_NAME, STORAGE_NAME, DOCK_TYPE, PLUGIN_NAME } from "./libs/constants";
+import {
+  SETTINGS_STORAGE_NAME,
+  STORAGE_NAME,
+  DOCK_TYPE,
+  PLUGIN_NAME,
+} from "./libs/constants";
 import log from "./libs/logger";
 
 export default class SiyuanInboxTelegramPlugin extends Plugin {
@@ -25,18 +26,15 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
     const frontEnd = getFrontend();
     this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
     // 图标的制作参见帮助文档
-    this.addIcons(`<symbol id="iconFace" viewBox="0 0 32 32">
-<path d="M13.667 17.333c0 0.92-0.747 1.667-1.667 1.667s-1.667-0.747-1.667-1.667 0.747-1.667 1.667-1.667 1.667 0.747 1.667 1.667zM20 15.667c-0.92 0-1.667 0.747-1.667 1.667s0.747 1.667 1.667 1.667 1.667-0.747 1.667-1.667-0.747-1.667-1.667-1.667zM29.333 16c0 7.36-5.973 13.333-13.333 13.333s-13.333-5.973-13.333-13.333 5.973-13.333 13.333-13.333 13.333 5.973 13.333 13.333zM14.213 5.493c1.867 3.093 5.253 5.173 9.12 5.173 0.613 0 1.213-0.067 1.787-0.16-1.867-3.093-5.253-5.173-9.12-5.173-0.613 0-1.213 0.067-1.787 0.16zM5.893 12.627c2.28-1.293 4.040-3.4 4.88-5.92-2.28 1.293-4.040 3.4-4.88 5.92zM26.667 16c0-1.040-0.16-2.040-0.44-2.987-0.933 0.2-1.893 0.32-2.893 0.32-4.173 0-7.893-1.92-10.347-4.92-1.4 3.413-4.187 6.093-7.653 7.4 0.013 0.053 0 0.12 0 0.187 0 5.88 4.787 10.667 10.667 10.667s10.667-4.787 10.667-10.667z"></path>
-</symbol>
-<symbol id="iconSaving" viewBox="0 0 32 32">
-<path d="M20 13.333c0-0.733 0.6-1.333 1.333-1.333s1.333 0.6 1.333 1.333c0 0.733-0.6 1.333-1.333 1.333s-1.333-0.6-1.333-1.333zM10.667 12h6.667v-2.667h-6.667v2.667zM29.333 10v9.293l-3.76 1.253-2.24 7.453h-7.333v-2.667h-2.667v2.667h-7.333c0 0-3.333-11.28-3.333-15.333s3.28-7.333 7.333-7.333h6.667c1.213-1.613 3.147-2.667 5.333-2.667 1.107 0 2 0.893 2 2 0 0.28-0.053 0.533-0.16 0.773-0.187 0.453-0.347 0.973-0.427 1.533l3.027 3.027h2.893zM26.667 12.667h-1.333l-4.667-4.667c0-0.867 0.12-1.72 0.347-2.547-1.293 0.333-2.347 1.293-2.787 2.547h-8.227c-2.573 0-4.667 2.093-4.667 4.667 0 2.507 1.627 8.867 2.68 12.667h2.653v-2.667h8v2.667h2.68l2.067-6.867 3.253-1.093v-4.707z"></path>
+    this.addIcons(`<symbol id="iconTelegram" viewBox="0 0 256 256">
+<path d="M88,134.87236,224.11223,36.56908l.00168-.00367a7.87244,7.87244,0,0,0-6.22314-.15014L33.33393,108.91975a8,8,0,0,0,1.35629,15.29065Z"></path> </g> <g opacity="0.2"> <path d="M132.90708,174.39059l-31.25023,31.25023A8,8,0,0,1,88,199.984v-65.1116Z"></path> </g> <path d="M231.25586,31.73635a15.9634,15.9634,0,0,0-16.29-2.76758L30.40869,101.47365a15.99988,15.99988,0,0,0,2.7124,30.58106L80,141.43069V199.9844a15.99415,15.99415,0,0,0,27.31348,11.31347L133.25684,185.355l39.376,34.65088a15.86863,15.86863,0,0,0,10.51709,4.00293,16.15674,16.15674,0,0,0,4.96338-.78711,15.86491,15.86491,0,0,0,10.68457-11.65332L236.41162,47.43557A15.96073,15.96073,0,0,0,231.25586,31.73635ZM86.14648,126.34279l-49.88574-9.977L175.94238,61.49026ZM96,199.97658V152.56887l25.21973,22.1936Zm87.20215,8.01758L100.81006,135.4883l118.64453-85.687Z"></path>
 </symbol>`);
 
     this.addDock({
       config: {
         position: "LeftBottom",
         size: { width: 200, height: 0 },
-        icon: "iconInbox",
+        icon: "iconTelegram",
         title: "Inbox Telegram",
         hotkey: "⌥⌘W",
       },
@@ -71,7 +69,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
         const deleteHook = () => {
           this.data[STORAGE_NAME].messages = dumpStore();
           this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
-        }
+        };
 
         const moveMessageHook = async () => {
           const selectedNotebook = this.settingUtils.get("selectedNotebook");
@@ -81,23 +79,36 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
               app: this.app,
               doc: {
                 id: dailyPage.id,
-                zoomIn: false
-              }
+                zoomIn: false,
+              },
             });
             this.data[STORAGE_NAME].messages = dumpStore();
 
-            const checkedMessages = this.data[STORAGE_NAME].messages.filter(message => message.checked);
-            const uncheckedMessages = this.data[STORAGE_NAME].messages.filter(message => !message.checked || !message.hasOwnProperty('checked'));
+            const checkedMessages = this.data[STORAGE_NAME].messages.filter(
+              (message) => message.checked
+            );
+            const uncheckedMessages = this.data[STORAGE_NAME].messages.filter(
+              (message) =>
+                !message.checked || !message.hasOwnProperty("checked")
+            );
 
             if (checkedMessages.length === 0 && uncheckedMessages.length > 0) {
-              uncheckedMessages.forEach(element => {
-                prependBlock("markdown", `- ${element.text} ​#inbox`, dailyPage.id);
+              uncheckedMessages.forEach((element) => {
+                prependBlock(
+                  "markdown",
+                  `- ${element.text} ​#inbox`,
+                  dailyPage.id
+                );
               });
               this.data[STORAGE_NAME].messages = [];
               messagesStore.set(this.data[STORAGE_NAME].messages);
             } else {
-              checkedMessages.forEach(element => {
-                prependBlock("markdown", `- ${element.text} ​#inbox`, dailyPage.id);
+              checkedMessages.forEach((element) => {
+                prependBlock(
+                  "markdown",
+                  `- ${element.text} ​#inbox`,
+                  dailyPage.id
+                );
               });
               this.data[STORAGE_NAME].messages = uncheckedMessages;
               messagesStore.set(this.data[STORAGE_NAME].messages);
@@ -108,7 +119,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
             console.warn("No selected notebook");
           }
         };
-        
+
         refreshHook();
 
         new Inbox({
@@ -116,23 +127,26 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
           props: {
             refreshHook,
             deleteHook,
-            moveMessageHook
+            moveMessageHook,
           },
         });
-      }
+      },
     });
 
     this.settingUtils = new SettingUtils({
       plugin: this,
       name: SETTINGS_STORAGE_NAME,
     });
-    
+
     const notebooksResponse = await lsNotebooks();
-    const notebooksOptions = notebooksResponse.notebooks.reduce((acc, notebook) => {
-      // Use notebook.id as the key and notebook.name as the value
-      acc[notebook.id] = notebook.name;
-      return acc;
-    }, {});
+    const notebooksOptions = notebooksResponse.notebooks.reduce(
+      (acc, notebook) => {
+        // Use notebook.id as the key and notebook.name as the value
+        acc[notebook.id] = notebook.name;
+        return acc;
+      },
+      {}
+    );
 
     this.settingUtils.addItem({
       key: "selectedNotebook",
