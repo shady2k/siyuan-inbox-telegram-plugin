@@ -6,6 +6,7 @@ interface ITelegramResponse {
 }
 
 interface IMessagesList {
+  date: number;
   chatId: number;
   text: string;
 }
@@ -57,8 +58,12 @@ export async function getInboxMessages(opts: any): Promise<ITelegramResponse> {
     "application/json"
   );
 
-  if (proxyResponse && proxyResponse.body && proxyResponse.status === 200) {
+    if (proxyResponse && proxyResponse.body && proxyResponse.status === 200) {
     telegramResponse = JSON.parse(proxyResponse.body);
+    console.debug({
+      name: "Telegram response",
+      telegramResponse,
+    })
     if (telegramResponse && telegramResponse.ok) {
       const resArr = telegramResponse.result;
 
@@ -79,12 +84,13 @@ export async function getInboxMessages(opts: any): Promise<ITelegramResponse> {
           }
 
           const text = element.message.text;
-          console.log({
+          console.debug({
             name: "Push in group messages",
-            element: element.message.chat.id,
+            element,
             text,
           });
           messages.push({
+            date: element.message.date,
             chatId: element.message.chat.id,
             text,
           });

@@ -43,6 +43,7 @@ export default class PluginSample extends Plugin {
   async onload() {
     this.data[STORAGE_NAME] = (await this.loadData(STORAGE_NAME)) || {};
     messagesStore.set(this.data[STORAGE_NAME].messages || []);
+    console.debug("storage", this.data[STORAGE_NAME]);
  
     // console.log("loading plugin-sample", this.i18n);
 
@@ -149,7 +150,7 @@ export default class PluginSample extends Plugin {
         console.log(this.data[STORAGE_NAME]);
         console.log(messagesStore);
 
-        const refresh = () => {
+        const refreshHook = () => {
           getInboxMessages({
             botToken: this.settingUtils.get("botToken"),
             updateId: this.data[STORAGE_NAME].updateId,
@@ -161,7 +162,7 @@ export default class PluginSample extends Plugin {
 
             if (res?.messages) {
               messagesStore.update((currentItems) => [
-                ...res.messages.map((message) => message.text),
+                ...res.messages,
                 ...currentItems,
               ]);
 
@@ -172,12 +173,18 @@ export default class PluginSample extends Plugin {
           });
         };
 
-        refresh();
+        const deleteHook = () => {
+          this.data[STORAGE_NAME].messages = dumpStore();
+          this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
+        }
+
+        refreshHook();
 
         const inbox = new Inbox({
           target: dock.element,
           props: {
-            refresh,
+            refreshHook,
+            deleteHook
           },
         });
 

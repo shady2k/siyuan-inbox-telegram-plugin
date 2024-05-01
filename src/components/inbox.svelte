@@ -1,6 +1,6 @@
 <script>
   import { messagesStore } from "../libs/store";
-  export let refresh;
+  export let refreshHook, deleteHook;
   let messages = [];
   let checkedMessages = new Set();
 
@@ -22,12 +22,13 @@
     messages = messages.filter((message) => !checkedMessages.has(message));
     checkedMessages.clear(); // Clear the set after deletion
     messagesStore.set(messages); // Update the store with the new messages array
+    deleteHook();
   }
 </script>
 
 <h3>Telegram Inbox</h3>
 <div>
-  <button on:click={refresh}>Refresh</button>
+  <button on:click={refreshHook}>Refresh</button>
   <button on:click={deleteCheckedMessages}>Delete</button>
   <!-- TODO: Add daily handler -->
   <button on:click={deleteCheckedMessages}>To daily</button>
@@ -40,7 +41,7 @@
         type="checkbox"
         on:change={(event) => handleCheckboxChange(message, event)}
       />
-      {message}
+      {message.text}
     </li>
   {/each}
 </ul>
