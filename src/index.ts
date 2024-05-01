@@ -28,6 +28,7 @@ import { messagesStore, dumpStore } from "./libs/store";
 import { SettingUtils } from "./libs/setting-utils";
 
 import { getInboxMessages } from "./libs/telegram";
+import { createDailyNote, lsNotebooks, prependBlock } from "./api";
 
 const SETTINGS_STORAGE_NAME = "siyuan-inbox-telegram-plugin-settings";
 const STORAGE_NAME = "siyuan-inbox-telegram-plugin-storage";
@@ -178,13 +179,50 @@ export default class PluginSample extends Plugin {
           this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
         }
 
+        const moveMessageHook = async () => {
+          const selectedNotebook = this.settingUtils.get("selectedNotebook");
+          if (selectedNotebook) {
+            const dailyPage = await createDailyNote(selectedNotebook);
+            openTab({
+              app: this.app,
+              doc: {
+                id: dailyPage.id,
+                zoomIn: false
+              }
+            });
+            this.data[STORAGE_NAME].messages = dumpStore();
+
+            const checkedMessages = this.data[STORAGE_NAME].messages.filter(message => message.checked);
+            const uncheckedMessages = this.data[STORAGE_NAME].messages.filter(message => !message.checked || !message.hasOwnProperty('checked'));
+
+            if (checkedMessages.length === 0 && uncheckedMessages.length > 0) {
+              uncheckedMessages.forEach(element => {
+                prependBlock("markdown", `- ${element.text} ​#inbox`, dailyPage.id);
+              });
+              this.data[STORAGE_NAME].messages = [];
+              messagesStore.set(this.data[STORAGE_NAME].messages);
+            } else {
+              checkedMessages.forEach(element => {
+                prependBlock("markdown", `- ${element.text} ​#inbox`, dailyPage.id);
+              });
+              this.data[STORAGE_NAME].messages = uncheckedMessages;
+              messagesStore.set(this.data[STORAGE_NAME].messages);
+            }
+
+            this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
+          } else {
+            console.warn("No selected notebook");
+          }
+        };
+        
         refreshHook();
 
-        const inbox = new Inbox({
+        new Inbox({
           target: dock.element,
           props: {
             refreshHook,
-            deleteHook
+            deleteHook,
+            moveMessageHook
           },
         });
 
@@ -221,6 +259,30 @@ export default class PluginSample extends Plugin {
     this.settingUtils = new SettingUtils({
       plugin: this,
       name: SETTINGS_STORAGE_NAME,
+    });
+
+    
+    const notebooksResponse = await lsNotebooks();
+    const notebooksOptions = notebooksResponse.notebooks.reduce((acc, notebook) => {
+      // Use notebook.id as the key and notebook.name as the value
+      acc[notebook.id] = notebook.name;
+      return acc;
+    }, {});
+
+    this.settingUtils.addItem({
+      key: "selectedNotebook",
+      value: "",
+      type: "select",
+      title: "Notebook",
+      description:
+        "This is the notebook you want to use. If you don't have any notebooks, please create one first",
+      options: notebooksOptions,
+      action: {
+        // Called when focus is lost and content changes
+        callback: () => {
+          this.settingUtils.takeAndSave("botToken");
+        },
+      },
     });
 
     this.settingUtils.addItem({

@@ -1,8 +1,7 @@
 <script>
   import { messagesStore } from "../libs/store";
-  export let refreshHook, deleteHook;
+  export let refreshHook, deleteHook, moveMessageHook;
   let messages = [];
-  let checkedMessages = new Set();
 
   messagesStore.subscribe((value) => {
     messages = value;
@@ -10,31 +9,26 @@
 
   // Reactive statement to update the select all icon
   $: selectAllIcon =
-    messages.length === checkedMessages.size ? "#iconCheck" : "#iconUncheck";
+    messages.length === messages.filter((message) => message.checked).length
+      ? "#iconCheck"
+      : "#iconUncheck";
 
   function toggleSelectAll() {
-    const areAllSelected = messages.length === checkedMessages.size;
-    if (areAllSelected) {
-      checkedMessages.clear();
-    } else {
-      messages.forEach((message) => checkedMessages.add(message));
-    }
-    checkedMessages = new Set(checkedMessages); // Trigger reactivity
+    messages.forEach((message) => {
+      message.checked = !message.checked;
+    });
+    // Force Svelte to recognize the change by reassigning the array to itself
+    messages = messages;
   }
 
   // Function to handle checkbox change
   function handleCheckboxChange(message, event) {
-    if (event.target.checked) {
-      checkedMessages.add(message);
-    } else {
-      checkedMessages.delete(message);
-    }
+    message.checked = event.target.checked;
   }
 
   // Function to delete checked messages
   function deleteCheckedMessages() {
-    messages = messages.filter((message) => !checkedMessages.has(message));
-    checkedMessages.clear(); // Clear the set after deletion
+    messages = messages.filter((message) => !message.checked);
     messagesStore.set(messages); // Update the store with the new messages array
     deleteHook();
   }
@@ -48,20 +42,21 @@
     </div>
     <span class="fn__flex-1 fn__space"></span>
     <button
-    data-type="selectall"
-    class="block__icon b3-tooltips b3-tooltips__w"
-    aria-label="Select all"
-    on:click={toggleSelectAll}
-    on:keydown={(event) => event.key === 'Enter' && toggleSelectAll()}
-  >
-    <svg><use xlink:href={selectAllIcon}></use></svg>
-  </button>
-    <span class="fn__flex-1 fn__space"></span>
-    <span
       data-type="selectall"
       class="block__icon b3-tooltips b3-tooltips__w"
+      aria-label="Select all"
+      on:click={toggleSelectAll}
+      on:keydown={(event) => event.key === "Enter" && toggleSelectAll()}
+    >
+      <svg><use xlink:href={selectAllIcon}></use></svg>
+    </button>
+    <span class="fn__flex-1 fn__space"></span>
+    <button
+      data-type="movemessage"
+      class="block__icon b3-tooltips b3-tooltips__w"
       aria-label="Move to Daily notes"
-      ><svg><use xlink:href="#iconCalendar"></use></svg></span
+      on:click={moveMessageHook}
+      ><svg><use xlink:href="#iconCalendar"></use></svg></button
     >
     <span class="fn__flex-1 fn__space"></span>
     <button
@@ -76,7 +71,8 @@
       data-type="refresh"
       class="block__icon b3-tooltips b3-tooltips__w"
       on:click={refreshHook}
-      aria-label="Refresh"><svg><use xlink:href="#iconRefresh"></use></svg></button
+      aria-label="Refresh"
+      ><svg><use xlink:href="#iconRefresh"></use></svg></button
     >
     <span class="fn__flex-1 fn__space"></span>
     <span
@@ -95,18 +91,19 @@
             Let's send some messages to your Telegram bot!
           </li>
         </ul>
-      {:else}{/if}
-      {#each messages as message (message)}
-        <li class="b3-list-item b3-list-item--hide-action">
-          <input
-            type="checkbox"
-            class="inbox__checkbox"
-            on:change={(event) => handleCheckboxChange(message, event)}
-            checked={checkedMessages.has(message)}
-          />
-          {message.text}
-        </li>
-      {/each}
+      {:else}
+        {#each messages as message (message)}
+          <li class="b3-list-item b3-list-item--hide-action">
+            <input
+              type="checkbox"
+              class="inbox__checkbox"
+              on:change={(event) => handleCheckboxChange(message, event)}
+              checked={message.checked}
+            />
+            {message.text}
+          </li>
+        {/each}
+      {/if}
     </ul>
   </div>
 </div>
@@ -115,5 +112,4 @@
   .inbox__checkbox {
     margin: 0px 6px 0px 0;
   }
- 
 </style>

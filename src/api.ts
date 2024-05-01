@@ -80,6 +80,14 @@ export async function createDocWithMd(notebook: NotebookId, path: string, markdo
     return request(url, data);
 }
 
+export async function createDailyNote(notebook: NotebookId): Promise<DailyNoteId> {
+    let data = {
+        notebook: notebook
+    };
+    let url = '/api/filetree/createDailyNote';
+    return request(url, data);
+}
+
 
 export async function renameDoc(notebook: NotebookId, path: string, title: string): Promise<DocumentId> {
     let data = {

@@ -6,6 +6,9 @@
  * Frequently used data structures in SiYuan
  */
 type DocumentId = string;
+type DailyNoteId = {
+    id: DocumentId;
+}
 type BlockId = string;
 type NotebookId = string;
 type PreviousID = BlockId;
