@@ -1,20 +1,20 @@
-import { Plugin, openTab, getFrontend } from "siyuan";
+import { Plugin, openTab } from "siyuan";
 import Inbox from "@/components/inbox.svelte";
 import { messagesStore, dumpStore } from "./libs/store";
 import { SettingUtils } from "./libs/setting-utils";
-import { getInboxMessages } from "./libs/telegram";
+import { Telegram } from "./libs/telegram";
 import { createDailyNote, lsNotebooks, prependBlock } from "./api";
 import {
   SETTINGS_STORAGE_NAME,
   STORAGE_NAME,
   DOCK_TYPE,
-  PLUGIN_NAME,
 } from "./libs/constants";
 import log from "./libs/logger";
 
 export default class SiyuanInboxTelegramPlugin extends Plugin {
-  private isMobile: boolean;
+  // private isMobile: boolean;
   private settingUtils: SettingUtils;
+  private telegram: Telegram;
 
   async onload() {
     log.info(this.i18n.helloPlugin);
@@ -22,8 +22,8 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
     messagesStore.set(this.data[STORAGE_NAME].messages || []);
     log.debug("Plugin storage", this.data[STORAGE_NAME]);
 
-    const frontEnd = getFrontend();
-    this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
+    // const frontEnd = getFrontend();
+    // this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
     // 图标的制作参见帮助文档
     this.addIcons(`<symbol id="iconTelegram" viewBox="0 0 256 256">
 <path d="M88,134.87236,224.11223,36.56908l.00168-.00367a7.87244,7.87244,0,0,0-6.22314-.15014L33.33393,108.91975a8,8,0,0,0,1.35629,15.29065Z"></path> </g> <g opacity="0.2"> <path d="M132.90708,174.39059l-31.25023,31.25023A8,8,0,0,1,88,199.984v-65.1116Z"></path> </g> <path d="M231.25586,31.73635a15.9634,15.9634,0,0,0-16.29-2.76758L30.40869,101.47365a15.99988,15.99988,0,0,0,2.7124,30.58106L80,141.43069V199.9844a15.99415,15.99415,0,0,0,27.31348,11.31347L133.25684,185.355l39.376,34.65088a15.86863,15.86863,0,0,0,10.51709,4.00293,16.15674,16.15674,0,0,0,4.96338-.78711,15.86491,15.86491,0,0,0,10.68457-11.65332L236.41162,47.43557A15.96073,15.96073,0,0,0,231.25586,31.73635ZM86.14648,126.34279l-49.88574-9.977L175.94238,61.49026ZM96,199.97658V152.56887l25.21973,22.1936Zm87.20215,8.01758L100.81006,135.4883l118.64453-85.687Z"></path>
@@ -43,11 +43,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       type: DOCK_TYPE,
       init: (dock) => {
         const refreshHook = () => {
-          getInboxMessages({
-            botToken: this.settingUtils.get("botToken"),
-            updateId: this.data[STORAGE_NAME].updateId,
-            authorizedUser: this.settingUtils.get("authorizedUser"),
-          }).then((res) => {
+          this.telegram.getInboxMessages().then((res) => {
             if (res?.updateId) {
               this.data[STORAGE_NAME].updateId = res.updateId;
             }
@@ -118,8 +114,6 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
             console.warn("No selected notebook");
           }
         };
-
-        refreshHook();
 
         new Inbox({
           target: dock.element,
@@ -229,11 +223,36 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
   }
 
   onLayoutReady() {
+    this.telegram = new Telegram({
+      botToken: this.settingUtils.get("botToken"),
+      updateId: this.data[STORAGE_NAME].updateId,
+      pollingInterval: this.settingUtils.get("pollingInterval") * 1000,
+      authorizedUser: this.settingUtils.get("authorizedUser"),
+      callback: (res) => {
+        if (res?.updateId) {
+          this.data[STORAGE_NAME].updateId = res.updateId;
+        }
+
+        if (res?.messages) {
+          messagesStore.update((currentItems) => [
+            ...res.messages,
+            ...currentItems,
+          ]);
+
+          this.data[STORAGE_NAME].messages = dumpStore();
+        }
+
+        this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
+      }
+    });
+
+    this.telegram.start()
     // this.settingUtils.load();
     // log.debug(`frontend: ${getFrontend()}; backend: ${getBackend()}`);
   }
 
   async onunload() {
+    await this.telegram.terminate();
     log.debug(this.i18n.byePlugin);
     // log.debug("onunload");
   }

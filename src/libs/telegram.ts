@@ -1,71 +1,149 @@
 import { forwardProxy } from "../api";
+import log from "./logger";
 
-export async function getInboxMessages(opts: any): Promise<ITelegramResponse> {
-  let updateId: number;
-  let telegramResponse;
-  let messages: IMessagesList[] = [];
+export class Telegram {
+  pollingInterval: number;
+  isProcessing: boolean;
+  isStopped: boolean;
+  botToken: string;
+  updateId: number;
+  authorizedUser: string;
+  callback: (messages: ITelegramResponse | null, error?: Error) => void;
 
-  const payload: IPayload = {
-    ...(opts.updateId && {
-      offset: opts.updateId + 1,
-    }),
-  };
+  constructor(opts: {
+    botToken: string;
+    pollingInterval?: number;
+    updateId?: number;
+    authorizedUser?: string;
+    callback: (messages: ITelegramResponse | null, error?: Error) => void;
+  }) {
+    this.isProcessing = false;
+    this.isStopped = false;
 
-  const authorizedUser = opts.authorizedUser || "";
+    if (!opts.botToken) {
+      throw new Error("botToken is required");
+    }
 
-  const proxyResponse = await forwardProxy(
-    `https://api.telegram.org/bot${opts.botToken}/getUpdates`,
-    "POST",
-    payload,
-    [],
-    7000,
-    "application/json"
-  );
+    this.pollingInterval = opts.pollingInterval || 0;
+    this.botToken = opts.botToken;
+    this.updateId = opts.updateId || 0;
+    this.authorizedUser = opts.authorizedUser || "";
+    this.callback = opts.callback;
 
-    if (proxyResponse && proxyResponse.body && proxyResponse.status === 200) {
-    telegramResponse = JSON.parse(proxyResponse.body);
-    console.debug({
-      name: "Telegram response",
-      telegramResponse,
-    })
-    if (telegramResponse && telegramResponse.ok) {
-      const resArr = telegramResponse.result;
+    log.debug("Telegram instance initialized", {
+      pollingInterval: this.pollingInterval,
+      botToken: this.botToken,
+      updateId: this.updateId,
+      authorizedUser: this.authorizedUser,
+    });
+  }
 
-      resArr.forEach((element: IUpdate) => {
-        updateId = element.update_id;
-        if (
-          element.message &&
-          element.message.text &&
-          element.message.date &&
-          element.message.from.username
-        ) {
-          if(authorizedUser && authorizedUser.length > 0 && authorizedUser !== element.message.from.username) {
-            console.warn(
-              "Ignore messages, user not authorized",
-              element,
-            )
-            return
-          }
+  start() {
+    log.info("Telegram start polling with interval:", this.pollingInterval);
+    this._process();
+  }
 
-          const text = element.message.text;
-          console.debug({
-            name: "Push in group messages",
-            element,
-            text,
-          });
-          messages.push({
-            id: element.message.message_id,
-            date: element.message.date,
-            chatId: element.message.chat.id,
-            text,
-          });
-        }
-      });
+  stop() {
+    log.info("Telegram stop polling");
+    this.isStopped = true;
+  }
+
+  async terminate() {
+    log.debug("Telegram terminate");
+    this.stop();
+    while (this.isProcessing) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 
-  return {
-    messages,
-    updateId,
-  };
+  private async _process() {
+    if (this.isStopped) return;
+
+    this.isProcessing = true;
+
+    try {
+      const messages = await this.getInboxMessages();
+      this.callback(messages, undefined); // Explicitly pass undefined for error
+    } catch (error) {
+      log.error("Error processing messages:", error);
+    } finally {
+      this.isProcessing = false;
+      if (!this.isStopped && this.pollingInterval > 0) {
+        setTimeout(() => this._process(), this.pollingInterval);
+      }
+    }
+  }
+
+  async getInboxMessages(): Promise<ITelegramResponse | null> {
+    let updateId: number;
+    let messages: IMessagesList[] = [];
+
+    const payload: IPayload = this.updateId
+      ? { offset: this.updateId + 1 }
+      : {};
+
+    try {
+      const proxyResponse = await forwardProxy(
+        `https://api.telegram.org/bot${this.botToken}/getUpdates`,
+        "POST",
+        payload,
+        [],
+        7000,
+        "application/json"
+      );
+
+      if (proxyResponse && proxyResponse.body && proxyResponse.status === 200) {
+        let telegramResponse;
+        try {
+          telegramResponse = JSON.parse(proxyResponse.body);
+        } catch (error) {
+          log.error("Error parsing JSON:", error);
+          return null; // Explicitly return null to indicate failure
+        }
+        log.debug("Telegram response", telegramResponse);
+
+        if (telegramResponse.ok) {
+          telegramResponse.result.forEach((element: IUpdate) => {
+            updateId = element.update_id;
+            this.updateId = updateId;
+            const message = element.message;
+            if (
+              message &&
+              message.text &&
+              message.date &&
+              message.from.username
+            ) {
+              if (
+                this.authorizedUser &&
+                this.authorizedUser !== message.from.username
+              ) {
+                log.warn("Ignore messages from unauthorized user", element);
+                return;
+              }
+
+              messages.push({
+                id: message.message_id,
+                date: message.date,
+                chatId: message.chat.id,
+                text: message.text,
+              });
+            }
+          });
+        } else {
+          return null; // Handle case where telegramResponse.ok is false
+        }
+      } else {
+        log.error("Invalid proxy response:", proxyResponse);
+        return null; // Return null for invalid or unsuccessful responses
+      }
+    } catch (error) {
+      log.error("Failed to get inbox messages:", error);
+      throw error; // Rethrow to handle in _process
+    }
+
+    return {
+      messages,
+      updateId,
+    };
+  }
 }
