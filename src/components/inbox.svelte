@@ -33,7 +33,7 @@
   }
 </script>
 
-<div class="fn__flex-1 fn__flex-column">
+<div class="fn__flex-1 fn__flex-column file-tree">
   <div class="block__icons">
     <div class="block__logo">
       <svg class="block__logoicon"><use xlink:href="#iconTelegram"></use></svg>
@@ -82,8 +82,8 @@
       ></span
     >
   </div>
-  <div class="fn__flex-1">
-    <ul class="b3-list b3-list--background">
+  <div class="fn__flex-1 inbox-content">
+    <ul class="b3-list b3-list--background" style="min-height: auto;transition: var(--b3-transition)">
       {#if messages.length === 0}
         <ul>
           <li class="b3-list--empty">Let's send some messages to your Telegram bot!</li>
@@ -115,5 +115,13 @@
   }
   .b3-list-item--hide-action {
     cursor: pointer;
+  }
+  .inbox-content {
+    position:absolute;
+    top: 42px;
+    left:0px;
+    right:0px;
+    bottom:0px;
+    overflow: auto; 
   }
 </style>

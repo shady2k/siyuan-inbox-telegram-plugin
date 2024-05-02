@@ -246,6 +246,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       }
     });
 
+    // TODO: reinitialize on settings change
     this.telegram.start()
     // this.settingUtils.load();
     // log.debug(`frontend: ${getFrontend()}; backend: ${getBackend()}`);
