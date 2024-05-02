@@ -4,6 +4,7 @@ interface ITelegramResponse {
   }
   
   interface IMessagesList {
+    id: number;
     date: number;
     chatId: number;
     text: string;
@@ -20,6 +21,7 @@ interface ITelegramResponse {
       chat: {
         id: number;
       };
+      message_id: number;
     };
     channel_post?: {
       date: number;

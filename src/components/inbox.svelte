@@ -17,19 +17,18 @@
     messages.forEach((message) => {
       message.checked = !message.checked;
     });
-    // Force Svelte to recognize the change by reassigning the array to itself
-    messages = messages;
+    messages = messages; // Force update
   }
 
-  // Function to handle checkbox change
-  function handleCheckboxChange(message, event) {
-    message.checked = event.target.checked;
+  function toggleMessageChecked(message) {
+    message.checked = !message.checked;
+    messages = messages; // Trigger reactivity
   }
 
   // Function to delete checked messages
   function deleteCheckedMessages() {
     messages = messages.filter((message) => !message.checked);
-    messagesStore.set(messages); // Update the store with the new messages array
+    messagesStore.set(messages); // Update the store
     deleteHook();
   }
 </script>
@@ -87,20 +86,22 @@
     <ul class="b3-list b3-list--background">
       {#if messages.length === 0}
         <ul>
-          <li class="b3-list--empty">
-            Let's send some messages to your Telegram bot!
-          </li>
+          <li class="b3-list--empty">Let's send some messages to your Telegram bot!</li>
         </ul>
       {:else}
-        {#each messages as message (message)}
-          <li class="b3-list-item b3-list-item--hide-action">
+        {#each messages as message (message.id)}
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+          <li class="b3-list-item b3-list-item--hide-action" on:click={() => toggleMessageChecked(message)}>
             <input
               type="checkbox"
               class="inbox__checkbox"
-              on:change={(event) => handleCheckboxChange(message, event)}
-              checked={message.checked}
+              bind:checked={message.checked}
+              on:click|stopPropagation
             />
-            {message.text}
+            <span class="b3-list-item__text" title="{message.text}">
+              {message.text}
+            </span>
           </li>
         {/each}
       {/if}
@@ -111,5 +112,8 @@
 <style>
   .inbox__checkbox {
     margin: 0px 6px 0px 0;
+  }
+  .b3-list-item--hide-action {
+    cursor: pointer;
   }
 </style>

@@ -54,6 +54,7 @@ export async function getInboxMessages(opts: any): Promise<ITelegramResponse> {
             text,
           });
           messages.push({
+            id: element.message.message_id,
             date: element.message.date,
             chatId: element.message.chat.id,
             text,
