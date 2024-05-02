@@ -1,5 +1,4 @@
 import { Plugin, openTab, getFrontend } from "siyuan";
-import "@/index.scss";
 import Inbox from "@/components/inbox.svelte";
 import { messagesStore, dumpStore } from "./libs/store";
 import { SettingUtils } from "./libs/setting-utils";
