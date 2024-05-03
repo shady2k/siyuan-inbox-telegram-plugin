@@ -129,6 +129,9 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
     this.settingUtils = new SettingUtils({
       plugin: this,
       name: SETTINGS_STORAGE_NAME,
+      callback: () => {
+        window.location.reload();
+      }
     });
 
     const notebooksResponse = await lsNotebooks();
@@ -151,7 +154,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       options: notebooksOptions,
       action: {
         callback: () => {
-          this.settingUtils.takeAndSave("botToken");
+          this.settingUtils.takeAndSave("selectedNotebook");
         },
       },
     });
@@ -213,16 +216,14 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
     });
 
     try {
-      this.settingUtils.load();
+      await this.settingUtils.load();
     } catch (error) {
       log.error(
         "Error loading settings storage, probly empty config json:",
         error
       );
     }
-  }
 
-  onLayoutReady() {
     this.telegram = new Telegram({
       botToken: this.settingUtils.get("botToken"),
       updateId: this.data[STORAGE_NAME].updateId,
@@ -246,8 +247,10 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       }
     });
 
-    // TODO: reinitialize on settings change
     this.telegram.start()
+  }
+
+  onLayoutReady() {
     // this.settingUtils.load();
     // log.debug(`frontend: ${getFrontend()}; backend: ${getBackend()}`);
   }
