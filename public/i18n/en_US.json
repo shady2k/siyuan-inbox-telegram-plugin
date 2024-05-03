@@ -1,20 +1,57 @@
 {
-    "addTopBarIcon": "Add a top bar icon by plugin",
-    "cancel": "Cancel",
-    "save": "Save",
-    "byeMenu": "Bye, Menu!",
     "helloPlugin": "Started Siyuan Inbox Telegram Plugin!",
     "byePlugin": "Bye, Plugin!",
-    "showDialog": "Show dialog",
-    "removedData": "Data deleted",
-    "confirmRemove": "Confirm to delete the data in ${name}?",
-    "insertEmoji": "Insert Emoji",
-    "removeSpace": "Remove Space",
-    "getTab": "Print out all opened custom tabs in the debugger",
-    "name": "SiYuan",
-    "hello": {
-        "makesure": "Before using this template, please read the <a href=\"https://github.com/siyuan-note/plugin-sample\">offical sample</a>, make sure that you've known about the pipeline for plugin developing."
+    "dock": {
+        "title": "Inbox Telegram",
+        "loading": "Loading..."
     },
-    "hintTitle":"About",
-    "hintDesc":"<a href='https://github.com/siyuan-note/plugin-sample-vite-svelte'>plugin-sample-vite-svelte</a><br>@frostime<br>@88250<br>@zxkmm"
+    "settings": {
+        "selectedNotebook": {
+            "title": "Notebook",
+            "description": "This is the notebook you want to use. If you don't have any notebooks, please create one first"
+        },
+        "botToken": {
+            "title": "Bot Token",
+            "description": "Telegram Bot token. In order to start you need to create Telegram bot: https://core.telegram.org/bots#3-how-do-i-create-a-bot. Create a bot with BotFather, which is essentially a bot used to create other bots. The command you need is /newbot. After you choose title, BotFaher give you the token"
+        },
+        "pollingInterval": {
+            "title": "Polling interval (seconds)",
+            "description": "This interval will be used to get new messages from Telegram bot"
+        },
+        "inboxName": {
+            "title": "Title in daily journal",
+            "description": "Messages will be pasted in daily journal into block with text, specified in inboxName property. Replace it in case of necessary. If you don't want to group messages, set inboxName property to null. In this case messages will be inserted directly into page block"
+        },
+        "authorizedUser": {
+            "title": "Authorized username from Telegram",
+            "description": "Be sure to add your username here, because your recently created bot is publicly findable and other peoples may send messages to your bot. If you leave this empty - all messages from all users will be processed!"
+        },
+        "loadError": "Error loading settings storage, probly empty config json:"
+    },
+    "inboxComponent": {
+        "icons": {
+            "selectAll": "Select all",
+            "moveMessage": "Move to Daily notes",
+            "delete": "Delete",
+            "refresh": "Refresh",
+            "min": "Min"
+        },
+        "emptyInbox": "Let's send some messages to your Telegram bot!"
+    },
+    "errors": {
+        "noSelectedNotebook": "No selected notebook",
+        "BotTokenRequiredError": "In order to use this plugin, Telegram bot token is required, set it in plugin settings",
+        "jsonParseError": "Error parsing JSON",
+        "InvalidProxyResponseError": "Invalid proxy response",
+        "GetMessagesError": "Failed to get inbox messages",
+        "ProcessingMessagesError": "Error processing messages"
+    },
+    "log": {
+        "startPolling": "Telegram start polling with interval:",
+        "stopPolling": "Telegram stop polling",
+        "telegramResponse": "Telegram response",
+        "unauthorizedUserMessage": "Ignore messages from unauthorized user",
+        "InstanceInitialized": "Telegram instance initialized",
+        "InstanceTerminated": "Telegram terminate"
+    }
 }

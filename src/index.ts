@@ -1,13 +1,15 @@
-import { Plugin, openTab } from "siyuan";
+import { Plugin, openTab, showMessage } from "siyuan";
 import Inbox from "@/components/inbox.svelte";
-import { messagesStore, dumpStore } from "./libs/store";
+import { messagesStore, uiErrorsStore, dumpStore } from "./libs/store";
 import { SettingUtils } from "./libs/setting-utils";
 import { Telegram } from "./libs/telegram";
+import { BotTokenRequiredError } from "./libs/errors";
 import { createDailyNote, lsNotebooks, prependBlock } from "./api";
 import {
   SETTINGS_STORAGE_NAME,
   STORAGE_NAME,
   DOCK_TYPE,
+  PLUGIN_NAME,
 } from "./libs/constants";
 import log from "./libs/logger";
 
@@ -20,6 +22,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
     log.info(this.i18n.helloPlugin);
     this.data[STORAGE_NAME] = (await this.loadData(STORAGE_NAME)) || {};
     messagesStore.set(this.data[STORAGE_NAME].messages || []);
+    uiErrorsStore.set([]);
     log.debug("Plugin storage", this.data[STORAGE_NAME]);
 
     // const frontEnd = getFrontend();
@@ -34,15 +37,16 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
         position: "LeftBottom",
         size: { width: 200, height: 0 },
         icon: "iconTelegram",
-        title: "Inbox Telegram",
+        title: this.i18n.dock.title,
         hotkey: "⌥⌘W",
       },
       data: {
-        text: "Loading...",
+        text: this.i18n.dock.loading,
       },
       type: DOCK_TYPE,
       init: (dock) => {
         const refreshHook = () => {
+          if(!this.telegram) return;
           this.telegram.getInboxMessages().then((res) => {
             if (res?.updateId) {
               this.data[STORAGE_NAME].updateId = res.updateId;
@@ -111,13 +115,19 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
 
             this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
           } else {
-            console.warn("No selected notebook");
+            log.warn(this.i18n.errors.noSelectedNotebook);
+            this.showUIMessage(
+              this.i18n.errors.noSelectedNotebook,
+              3000,
+              "info"
+            );
           }
         };
 
         new Inbox({
           target: dock.element,
           props: {
+            i18n: this.i18n,
             refreshHook,
             deleteHook,
             moveMessageHook,
@@ -131,7 +141,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       name: SETTINGS_STORAGE_NAME,
       callback: () => {
         window.location.reload();
-      }
+      },
     });
 
     const notebooksResponse = await lsNotebooks();
@@ -148,9 +158,8 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       key: "selectedNotebook",
       value: "",
       type: "select",
-      title: "Notebook",
-      description:
-        "This is the notebook you want to use. If you don't have any notebooks, please create one first",
+      title: this.i18n.settings.selectedNotebook.title,
+      description: this.i18n.settings.selectedNotebook.description,
       options: notebooksOptions,
       action: {
         callback: () => {
@@ -163,9 +172,8 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       key: "botToken",
       value: "",
       type: "textinput",
-      title: "Bot token",
-      description:
-        "Telegram Bot token. In order to start you need to create Telegram bot: https://core.telegram.org/bots#3-how-do-i-create-a-bot. Create a bot with BotFather, which is essentially a bot used to create other bots. The command you need is /newbot. After you choose title, BotFaher give you the token",
+      title: this.i18n.settings.botToken.title,
+      description: this.i18n.settings.botToken.description,
       action: {
         callback: () => {
           this.settingUtils.takeAndSave("botToken");
@@ -177,9 +185,8 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       key: "pollingInterval",
       value: 60,
       type: "number",
-      title: "Polling interval (seconds)",
-      description:
-        "This interval will be used to get new messages from Telegram bot",
+      title: this.i18n.settings.pollingInterval.title,
+      description: this.i18n.settings.pollingInterval.description,
       action: {
         callback: () => {
           this.settingUtils.takeAndSave("pollingInterval");
@@ -191,9 +198,8 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
     //   key: "inboxName",
     //   value: "#inbox",
     //   type: "textinput",
-    //   title: "Title in daily journal",
-    //   description:
-    //     "Messages will be pasted in daily journal into block with text, specified in inboxName property. Replace it in case of necessary. If you don't want to group messages, set inboxName property to null. In this case messages will be inserted directly into page block",
+    //   title: this.i18n.settings.inboxName.title,
+    //   description: this.i18n.settings.inboxName.description,
     //   action: {
     //     callback: () => {
     //       this.settingUtils.takeAndSave("inboxName");
@@ -205,53 +211,72 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       key: "authorizedUser",
       value: "",
       type: "textinput",
-      title: "Authorized username from Telegram",
-      description:
-        "Be sure to add your username here, because your recently created bot is publicly findable and other peoples may send messages to your bot. If you leave this empty - all messages from all users will be processed!",
+      title: this.i18n.settings.authorizedUser.title,
+      description: this.i18n.settings.authorizedUser.description,
       action: {
         callback: () => {
           this.settingUtils.takeAndSave("authorizedUser");
         },
       },
     });
+  }
 
-    try {
-      await this.settingUtils.load();
-    } catch (error) {
-      log.error(
-        "Error loading settings storage, probly empty config json:",
-        error
-      );
-    }
-
-    this.telegram = new Telegram({
-      botToken: this.settingUtils.get("botToken"),
-      updateId: this.data[STORAGE_NAME].updateId,
-      pollingInterval: this.settingUtils.get("pollingInterval") * 1000,
-      authorizedUser: this.settingUtils.get("authorizedUser"),
-      callback: (res) => {
-        if (res?.updateId) {
-          this.data[STORAGE_NAME].updateId = res.updateId;
-        }
-
-        if (res?.messages) {
-          messagesStore.update((currentItems) => [
-            ...res.messages,
-            ...currentItems,
-          ]);
-
-          this.data[STORAGE_NAME].messages = dumpStore();
-        }
-
-        this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
-      }
-    });
-
-    this.telegram.start()
+  showUIMessage(
+    text: string,
+    timeout?: number,
+    type?: "info" | "error",
+    id?: string
+  ): void {
+    showMessage(`[${PLUGIN_NAME}]<br/>${text}<br/>`, timeout, type, id);
   }
 
   onLayoutReady() {
-    // this.settingUtils.load();
+    this.settingUtils
+      .load()
+      .then(() => {
+        try {
+          this.telegram = new Telegram({
+            botToken: this.settingUtils.get("botToken"),
+            updateId: this.data[STORAGE_NAME].updateId,
+            pollingInterval: this.settingUtils.get("pollingInterval") * 1000,
+            authorizedUser: this.settingUtils.get("authorizedUser"),
+            i18n: this.i18n,
+            callback: (res) => {
+              if (res?.updateId) {
+                this.data[STORAGE_NAME].updateId = res.updateId;
+              }
+
+              if (res?.messages) {
+                messagesStore.update((currentItems) => [
+                  ...res.messages,
+                  ...currentItems,
+                ]);
+
+                this.data[STORAGE_NAME].messages = dumpStore();
+              }
+
+              this.saveData(STORAGE_NAME, this.data[STORAGE_NAME]);
+            },
+          });
+
+          this.telegram.start();
+        } catch (error) {
+          log.error(this.i18n.errors.initTelegram, error);
+
+          if (error instanceof BotTokenRequiredError) {
+            console.error(`BotTokenRequiredError: ${error.message}`);
+            this.showUIMessage(
+              this.i18n.errors.BotTokenRequiredError,
+              0,
+              "error"
+            );
+            uiErrorsStore.set([this.i18n.errors.BotTokenRequiredError]);
+          }
+        }
+      })
+      .catch((error) => {
+        log.error(this.i18n.settings.loadError, error);
+      });
     // log.debug(`frontend: ${getFrontend()}; backend: ${getBackend()}`);
   }
 
