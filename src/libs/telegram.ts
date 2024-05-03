@@ -121,7 +121,7 @@ export class Telegram {
                 return;
               }
 
-              messages.push({
+              messages.unshift({
                 id: message.message_id,
                 date: message.date,
                 chatId: message.chat.id,
