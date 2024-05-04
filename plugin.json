@@ -1,6 +1,6 @@
 {
   "name": "siyuan-inbox-telegram-plugin",
-  "author": "frostime",
+  "author": "shady2k",
   "url": "https://github.com/shady2k/siyuan-inbox-telegram-plugin",
   "version": "0.1.0",
   "minAppVersion": "3.0.0",
@@ -20,22 +20,17 @@
   ],
   "displayName": {
     "en_US": "Telegram Inbox",
-    "zh_CN": "插件样例 vite + svelte 版"
+    "zh_CN": "电报收件箱"
   },
   "description": {
     "en_US": "SiYuan Telegram Inbox plugin",
-    "zh_CN": "使用 vite 和 svelte 开发的思源插件样例"
+    "zh_CN": "思源电报收件箱插件"
   },
   "readme": {
     "en_US": "README.md",
     "zh_CN": "README_zh_CN.md"
   },
-  "funding": {
-    "custom": [
-      "https://afdian.net/a/frostime"
-    ]
-  },
   "keywords": [
-    "plugin", "sample", "插件样例"
+    "inbox", "telegram", "plugin", "收件箱", "电报", "插件"
   ]
 }
