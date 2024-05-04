@@ -1,6 +1,6 @@
 {
     "helloPlugin": "Started Siyuan Inbox Telegram Plugin!",
-    "byePlugin": "Bye, Plugin!",
+    "byePlugin": "Plugin unloaded!",
     "dock": {
         "title": "Inbox Telegram",
         "loading": "Loading..."
@@ -8,25 +8,25 @@
     "settings": {
         "selectedNotebook": {
             "title": "Notebook",
-            "description": "This is the notebook you want to use. If you don't have any notebooks, please create one first"
+            "description": "This is the notebook you want to use. If you don't have any notebooks, please create one first."
         },
         "botToken": {
             "title": "Bot Token",
-            "description": "Telegram Bot token. In order to start you need to create Telegram bot: https://core.telegram.org/bots#3-how-do-i-create-a-bot. Create a bot with BotFather, which is essentially a bot used to create other bots. The command you need is /newbot. After you choose title, BotFaher give you the token"
+            "description": "Telegram Bot token. In order to start, you need to create a Telegram bot: https://core.telegram.org/bots#3-how-do-i-create-a-bot. Create a bot with BotFather, which is essentially a bot used to create other bots. The command you need is /newbot. After you choose a title, BotFather will give you the token."
         },
         "pollingInterval": {
             "title": "Polling interval (seconds)",
-            "description": "This interval will be used to get new messages from Telegram bot"
+            "description": "This interval will be used to get new messages from the Telegram bot."
         },
         "inboxName": {
-            "title": "Title in daily journal",
-            "description": "Messages will be pasted in daily journal into block with text, specified in inboxName property. Replace it in case of necessary. If you don't want to group messages, set inboxName property to null. In this case messages will be inserted directly into page block"
+            "title": "Postfix added to each message in the daily journal",
+            "description": "This postfix will be added to each message in the daily journal. Replace it if necessary. If you don't want to add this postfix, set this property to blank."
         },
         "authorizedUser": {
             "title": "Authorized username from Telegram",
-            "description": "Be sure to add your username here, because your recently created bot is publicly findable and other peoples may send messages to your bot. If you leave this empty - all messages from all users will be processed!"
+            "description": "Be sure to add your username here, as your recently created bot is publicly findable, and others may send messages to your bot. If you leave this empty, all messages from all users will be processed!"
         },
-        "loadError": "Error loading settings storage, probly empty config json:"
+        "loadError": "Error loading settings storage, probably empty config json:"
     },
     "inboxComponent": {
         "icons": {
@@ -40,9 +40,9 @@
     },
     "errors": {
         "noSelectedNotebook": "No selected notebook",
-        "BotTokenRequiredError": "In order to use this plugin, Telegram bot token is required, set it in plugin settings",
+        "BotTokenRequiredError": "In order to use this plugin, a Telegram bot token is required, set it in plugin settings",
         "jsonParseError": "Error parsing JSON",
-        "InvalidProxyResponseError": "Invalid proxy response",
+        "InvalidProxyResponseError": "Invalid proxy response. Please check your proxy settings.",
         "GetMessagesError": "Failed to get inbox messages",
         "ProcessingMessagesError": "Error processing messages"
     },
@@ -52,6 +52,6 @@
         "telegramResponse": "Telegram response",
         "unauthorizedUserMessage": "Ignore messages from unauthorized user",
         "InstanceInitialized": "Telegram instance initialized",
-        "InstanceTerminated": "Telegram terminate"
+        "InstanceTerminated": "Telegram terminated"
     }
 }

@@ -72,6 +72,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
 
         const moveMessageHook = async () => {
           const selectedNotebook = this.settingUtils.get("selectedNotebook");
+          const inboxName = this.settingUtils.get("inboxName") || "#inbox";
           if (selectedNotebook) {
             const dailyPage = await createDailyNote(selectedNotebook);
             openTab({
@@ -95,7 +96,7 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
               uncheckedMessages.forEach((element) => {
                 prependBlock(
                   "markdown",
-                  `- ${element.text} ​#inbox`,
+                  `- ${element.text} ${inboxName}`,
                   dailyPage.id
                 );
               });
@@ -194,18 +195,18 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
       },
     });
 
-    // this.settingUtils.addItem({
-    //   key: "inboxName",
-    //   value: "#inbox",
-    //   type: "textinput",
-    //   title: this.i18n.settings.inboxName.title,
-    //   description: this.i18n.settings.inboxName.description,
-    //   action: {
-    //     callback: () => {
-    //       this.settingUtils.takeAndSave("inboxName");
-    //     },
-    //   },
-    // });
+    this.settingUtils.addItem({
+      key: "inboxName",
+      value: "#inbox",
+      type: "textinput",
+      title: this.i18n.settings.inboxName.title,
+      description: this.i18n.settings.inboxName.description,
+      action: {
+        callback: () => {
+          this.settingUtils.takeAndSave("inboxName");
+        },
+      },
+    });
 
     this.settingUtils.addItem({
       key: "authorizedUser",

@@ -1,57 +1,57 @@
 {
-  "helloPlugin": "启动 Siyuan Inbox Telegram 插件！",
-  "byePlugin": "再见，插件！",
-  "dock": {
-      "title": "Telegram 收件箱",
-      "loading": "加载中..."
-  },
-  "settings": {
-      "selectedNotebook": {
-          "title": "笔记本",
-          "description": "这是你想要使用的笔记本。如果你没有任何笔记本，请先创建一个"
-      },
-      "botToken": {
-          "title": "机器人令牌",
-          "description": "Telegram 机器人令牌。为了开始，你需要创建一个 Telegram 机器人：https://core.telegram.org/bots#3-how-do-i-create-a-bot。使用 BotFather 创建一个机器人，BotFather 本质上是用来创建其他机器人的机器人。你需要的命令是 /newbot。在你选择标题后，BotFather 会给你一个令牌"
-      },
-      "pollingInterval": {
-          "title": "轮询间隔（秒）",
-          "description": "此间隔将用于从 Telegram 机器人获取新消息"
-      },
-      "inboxName": {
-          "title": "日常日记中的标题",
-          "description": "消息将被粘贴到日常日记中的文本块中，该文本块由 inboxName 属性指定。如有必要，请替换它。如果你不想将消息分组，请将 inboxName 属性设置为 null。在这种情况下，消息将直接插入页面块"
-      },
-      "authorizedUser": {
-          "title": "Telegram 中授权的用户名",
-          "description": "确保在这里添加你的用户名，因为你刚刚创建的机器人是公开可查找的，其他人可能会向你的机器人发送消息。如果你留空 - 所有用户的所有消息都将被处理！"
-      },
-      "loadError": "加载设置存储时出错，可能是配置 json 为空："
-  },
-  "inboxComponent": {
-      "icons": {
-          "selectAll": "全选",
-          "moveMessage": "移动到日常笔记",
-          "delete": "删除",
-          "refresh": "刷新",
-          "min": "最小化"
-      },
-      "emptyInbox": "向你的 Telegram 机器人发送一些消息吧！"
-  },
-  "errors": {
-      "noSelectedNotebook": "没有选择的笔记本",
-      "BotTokenRequiredError": "为了使用此插件，需要设置 Telegram 机器人令牌，请在插件设置中设置",
-      "jsonParseError": "解析 JSON 错误",
-      "InvalidProxyResponseError": "无效的代理响应",
-      "GetMessagesError": "获取收件箱消息失败",
-      "ProcessingMessagesError": "处理消息错误"
-  },
-  "log": {
-      "startPolling": "Telegram 开始轮询，间隔：",
-      "stopPolling": "Telegram 停止轮询",
-      "telegramResponse": "Telegram 响应",
-      "unauthorizedUserMessage": "忽略来自未授权用户的消息",
-      "InstanceInitialized": "Telegram 实例初始化",
-      "InstanceTerminated": "Telegram 终止"
-  }
+    "helloPlugin": "启动 Siyuan Inbox Telegram 插件！",
+    "byePlugin": "插件已卸载！",
+    "dock": {
+        "title": "Inbox Telegram",
+        "loading": "加载中..."
+    },
+    "settings": {
+        "selectedNotebook": {
+            "title": "笔记本",
+            "description": "这是你想要使用的笔记本。如果你没有任何笔记本，请先创建一个。"
+        },
+        "botToken": {
+            "title": "机器人令牌",
+            "description": "Telegram 机器人令牌。为了开始，你需要创建一个 Telegram 机器人：https://core.telegram.org/bots#3-how-do-i-create-a-bot。使用 BotFather 创建一个机器人，BotFather 本质上是一个用于创建其他机器人的机器人。你需要的命令是 /newbot。在你选择一个标题后，BotFather 将给你一个令牌。"
+        },
+        "pollingInterval": {
+            "title": "轮询间隔（秒）",
+            "description": "此间隔将用于从 Telegram 机器人获取新消息。"
+        },
+        "inboxName": {
+            "title": "每条消息在日常日记中添加的后缀",
+            "description": "此后缀将被添加到每条消息中的日常日记。如有必要，请替换它。如果你不想添加此后缀，请将此属性设置为空。"
+        },
+        "authorizedUser": {
+            "title": "Telegram 中的授权用户名",
+            "description": "确保在这里添加你的用户名，因为你刚刚创建的机器人是公开可查找的，其他人可能会向你的机器人发送消息。如果你留空，所有用户的所有消息都将被处理！"
+        },
+        "loadError": "加载设置存储时出错，可能是配置 json 为空："
+    },
+    "inboxComponent": {
+        "icons": {
+            "selectAll": "全选",
+            "moveMessage": "移动到日常笔记",
+            "delete": "删除",
+            "refresh": "刷新",
+            "min": "最小化"
+        },
+        "emptyInbox": "让我们向你的 Telegram 机器人发送一些消息！"
+    },
+    "errors": {
+        "noSelectedNotebook": "没有选择的笔记本",
+        "BotTokenRequiredError": "为了使用此插件，需要设置 Telegram 机器人令牌，请在插件设置中设置",
+        "jsonParseError": "解析 JSON 错误",
+        "InvalidProxyResponseError": "无效的代理响应。请检查你的代理设置。",
+        "GetMessagesError": "获取收件箱消息失败",
+        "ProcessingMessagesError": "处理消息错误"
+    },
+    "log": {
+        "startPolling": "Telegram 开始轮询，间隔：",
+        "stopPolling": "Telegram 停止轮询",
+        "telegramResponse": "Telegram 响应",
+        "unauthorizedUserMessage": "忽略来自未经授权用户的消息",
+        "InstanceInitialized": "Telegram 实例初始化",
+        "InstanceTerminated": "Telegram 终止"
+    }
 }
