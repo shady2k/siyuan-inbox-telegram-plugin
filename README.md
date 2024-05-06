@@ -19,7 +19,7 @@ This plugin integrates Telegram with SiYuan, allowing users to manage their Tele
    - Paste the Telegram bot token into the plugin settings under `Bot token`.
    - In the `Notebook` field, select the notebook you want to use. If you don't have any notebooks, please create one first.
    - Add your Telegram username in the `Authorized username from Telegram` field. This is crucial for security, as your bot is publicly findable, and you don't want unauthorized users sending messages to it. If left empty, all messages from all users will be processed.
-   - Adjust the polling interval under `Polling interval (seconds)`. This interval determines how often the plugin checks for new messages from the Telegram bot.
+   - Adjust the polling interval under `Polling interval (seconds)`. This interval determines how often the plugin checks for new messages from the Telegram bot. If you want to disable polling, just set the value to 0.
 
 3. **Start Using the Plugin**:
    - Messages will appear in the `Telegram Inbox Plugin` dock, located in the bottom left corner of SiYuan. You can add these messages to your daily journal.
