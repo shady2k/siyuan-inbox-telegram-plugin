@@ -92,23 +92,35 @@ export default class SiyuanInboxTelegramPlugin extends Plugin {
                 !message.checked || !message.hasOwnProperty("checked")
             );
 
+            const processElement = (element) => {
+              const attachments = (element) => {
+                const attachmentObject = element.attachments;
+                return attachmentObject.map(attachment => `[${attachment.fileName}](${attachment.path})`).join(', ');
+              }
+
+              const payload = [
+                '-',
+                element.text,
+                attachments(element),
+                inboxName
+              ].join(' ');
+
+              prependBlock(
+                "markdown",
+                payload,
+                dailyPage.id
+              );
+            }
+              
             if (checkedMessages.length === 0 && uncheckedMessages.length > 0) {
               uncheckedMessages.forEach((element) => {
-                prependBlock(
-                  "markdown",
-                  `- ${element.text} ${inboxName}`,
-                  dailyPage.id
-                );
+                processElement(element);
               });
               this.data[STORAGE_NAME].messages = [];
               messagesStore.set(this.data[STORAGE_NAME].messages);
             } else {
               checkedMessages.forEach((element) => {
-                prependBlock(
-                  "markdown",
-                  `- ${element.text} ​#inbox`,
-                  dailyPage.id
-                );
+                processElement(element);
               });
               this.data[STORAGE_NAME].messages = uncheckedMessages;
               messagesStore.set(this.data[STORAGE_NAME].messages);

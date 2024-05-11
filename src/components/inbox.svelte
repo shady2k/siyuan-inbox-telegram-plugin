@@ -115,9 +115,17 @@
                 bind:checked={message.checked}
                 on:click|stopPropagation
               />
+              {#if message.text}
               <span class="b3-list-item__text" title={message.text}>
                 {message.text}
               </span>
+              {:else if message.attachments && message.attachments.length > 0}
+              <span class="b3-list-item__text" title={message.attachments.map(attachment => attachment.fileName).join(', ')}>
+                {message.attachments.map(attachment => attachment.fileName).join(', ')}
+              </span>
+              {:else}
+                {i18n.inboxComponent.unsupportedMessage}
+              {/if}
             </li>
           {/each}
         {/if}

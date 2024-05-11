@@ -36,7 +36,8 @@
             "refresh": "刷新",
             "min": "最小化"
         },
-        "emptyInbox": "让我们向你的 Telegram 机器人发送一些消息！"
+        "emptyInbox": "让我们向你的 Telegram 机器人发送一些消息！",
+        "unsupportedMessage": "不支持的消息"
     },
     "errors": {
         "noSelectedNotebook": "没有选择的笔记本",
