@@ -2,7 +2,7 @@
   "name": "siyuan-inbox-telegram-plugin",
   "author": "shady2k",
   "url": "https://github.com/shady2k/siyuan-inbox-telegram-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "minAppVersion": "3.0.0",
   "backends": [
     "all"

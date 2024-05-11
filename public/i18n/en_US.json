@@ -36,7 +36,8 @@
             "refresh": "Refresh",
             "min": "Min"
         },
-        "emptyInbox": "Let's send some messages to your Telegram bot!"
+        "emptyInbox": "Let's send some messages to your Telegram bot!",
+        "unsupportedMessage": "Unsupported message"
     },
     "errors": {
         "noSelectedNotebook": "No selected notebook",

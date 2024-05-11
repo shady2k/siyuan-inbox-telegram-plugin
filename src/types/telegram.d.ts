@@ -8,6 +8,19 @@ interface ITelegramResponse {
     date: number;
     chatId: number;
     text: string;
+    attachments: IMessageAttachment[];
+  }
+
+  interface IMessageAttachment {
+    fileName: string;
+    path: string;
+  }
+
+  interface ITelegramFileResponse {
+    file_id: string;
+    file_path: string;
+    file_size: number;
+    file_unique_id: string;
   }
   
   interface IUpdate {
@@ -22,6 +35,11 @@ interface ITelegramResponse {
         id: number;
       };
       message_id: number;
+      document: {
+        file_name: string;
+        mime_type: string;
+        file_id: string;
+      }
     };
     channel_post?: {
       date: number;
