@@ -1,6 +1,6 @@
 {
   "name": "siyuan-inbox-telegram-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "This plugin integrates Telegram with SiYuan (https://b3log.org/siyuan), allowing users to manage their Telegram messages directly within SiYuan using a Telegram bot. It supports creating daily notes, managing messages, and more",
   "repository": "https://github.com/shady2k/siyuan-inbox-telegram-plugin",
